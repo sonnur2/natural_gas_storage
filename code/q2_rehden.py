@@ -18,6 +18,7 @@ Events  2022-04-04 Bundesnetzagentur appointed trustee of Gazprom Germania
 Output  output/q2_rehden/
   fig_q2a_rehden_vs_de.png       % full by day, 2015-2022, events marked (main figure)
   fig_q2a_rehden_vs_de_2025.png  same through 2025 (state-owned period)
+  fig_q2a_rehden_vs_de_2018_2023.png  talk version, 2018-2023, slide numbers annotated
   fig_q2a_gap_twh.png            security gap in TWh and days of German demand
   key_dates.csv                  fills and gaps on 1 Oct and 1 Nov each year
   slide_numbers.txt              the numbers for the slide line
@@ -114,6 +115,64 @@ def fill_plot(s, b, end, fname, title):
     plt.close(fig)
 
 
+def annotated_plot(s, b, t):
+    """Talk version, 2018-2023: the slide numbers written on the figure, one SEFE marker."""
+    x, bb = s.loc["2018-01-01":"2023-12-31"], b.loc["2018-01-01":"2023-12-31"]
+    oct21, nov21, nov22 = (s.loc[pd.Timestamp(d)] for d in ["2021-10-01", "2021-11-01", "2022-11-01"])
+    pre = t[pd.to_datetime(t.date).dt.year.between(2016, 2020) & (pd.to_datetime(t.date).dt.month == 11)]
+    sefe = pd.Timestamp("2022-06-20")
+
+    fig, ax = plt.subplots(figsize=(12, 5.6))
+    ax.fill_between(bb.index, bb.lo, bb.hi, color=GRAY, alpha=0.18, lw=0,
+                    label="Rest of Germany, 2016–2020 range")
+    ax.plot(x.index, x.rest_pct, color=GRAY, lw=1.6, label="Rest of Germany (capacity-weighted)")
+    ax.plot(x.index, x.rehden_pct, color=ORANGE, lw=2.4, label="Rehden (largest German site)")
+
+    # 1 Oct 2021: the two fill levels
+    d = pd.Timestamp("2021-10-01")
+    ax.plot([d, d], [oct21.rehden_pct, oct21.rest_pct], "o", color=INK, ms=5, zorder=5)
+    ax.annotate(f"1 Oct 2021: {oct21.rest_pct:.1f}%", (d, oct21.rest_pct), xytext=(-12, 10),
+                textcoords="offset points", ha="right", fontsize=10, color=INK)
+    ax.annotate(f"1 Oct 2021: {oct21.rehden_pct:.1f}%", (d, oct21.rehden_pct), xytext=(-14, 16),
+                textcoords="offset points", ha="right", fontsize=10, color=ORANGE, fontweight="bold",
+                bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=0.85))
+
+    # 1 Nov 2021: the gap in TWh and days
+    d = pd.Timestamp("2021-11-01")
+    ax.annotate("", xy=(d, nov21.rest_pct), xytext=(d, nov21.rehden_pct),
+                arrowprops=dict(arrowstyle="<->", color=INK, lw=1.2))
+    ax.text(d + pd.Timedelta(days=12), (nov21.rest_pct + nov21.rehden_pct) / 2,
+            f"Gap on 1 Nov 2021:\n{nov21.gap_twh:.1f} TWh ≈ {nov21.gap_days:.0f} days\n"
+            "of average German demand", fontsize=10, color=INK, va="center", bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=0.85))
+
+    # pre-2021 benchmark
+    ax.text(pd.Timestamp("2019-05-01"), 22,
+            f"1 Nov, 2016–2020 average:\nRehden {pre.rehden_pct.mean():.0f}%, "
+            f"rest of Germany {pre.rest_pct.mean():.0f}%", fontsize=10, color=INK2, bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=0.85))
+
+    # SEFE and the refill
+    ax.axvline(sefe, color=INK2, lw=0.9, ls=":")
+    ax.text(sefe - pd.Timedelta(days=8), 106, "SEFE (June 2022)", fontsize=10, color=INK2,
+            ha="right", va="top")
+    d = pd.Timestamp("2022-11-01")
+    ax.plot(d, nov22.rehden_pct, "o", color=ORANGE, ms=5, zorder=5)
+    ax.annotate(f"1 Nov 2022: {nov22.rehden_pct:.1f}%", (d, nov22.rehden_pct),
+                xytext=(pd.Timestamp("2023-02-15"), 42), fontsize=10, color=ORANGE, fontweight="bold",
+                arrowprops=dict(arrowstyle="-", color=ORANGE, lw=1), bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=0.85))
+
+    ax.set_ylim(0, 108)
+    ax.set_ylabel("% full")
+    ax.xaxis.set_major_locator(mdates.YearLocator())
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+    ax.legend(loc="lower left", fontsize=10, ncol=3, bbox_to_anchor=(0, -0.2))
+    titles(ax, "Rehden emptied in 2021 while the rest of Germany filled",
+           "Gas in storage as % of working gas volume, daily. Source: GIE AGSI+. "
+           "Rest of Germany excludes the other astora/SEFE site (Jemgum H).")
+    fig.tight_layout()
+    fig.savefig(os.path.join(OUT, "fig_q2a_rehden_vs_de_2018_2023.png"), bbox_inches="tight")
+    plt.close(fig)
+
+
 def gap_plot(s):
     x = s.loc[:"2022-12-31"]
     fig, ax = plt.subplots(figsize=(12, 4.2))
@@ -181,6 +240,7 @@ def main():
               "Rehden emptied in 2021, and again in 2025 under state ownership")
     gap_plot(s)
     t = key_dates(s, b)
+    annotated_plot(s, b, t)
     print(t.to_string(index=False))
     slide_numbers(s, t)
 
