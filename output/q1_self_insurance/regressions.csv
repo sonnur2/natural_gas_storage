@@ -1,0 +1,6 @@
+model,var,coef,se,p,n,countries
+"OLS, all years",gap_apr,0.2918,0.032,0.0,85,17
+"OLS, without 2021",gap_apr,0.2198,0.0485,0.0003,68,17
+"IV (winter HDD), all years",gap_apr,0.4887,0.1783,0.0151,76,17
+"IV (winter HDD), without 2021",gap_apr,0.4175,0.1812,0.0359,61,16
+First stage: gap_apr on winter HDD,winter_hdd_anom,-0.0879,0.0202,0.0006,76,17
