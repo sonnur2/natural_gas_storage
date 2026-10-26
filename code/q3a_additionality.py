@@ -23,6 +23,9 @@ Output  output/q3a_additionality/
   fig_q3a_combined.png        both panels side by side, for the slide
   fig_q3a_placebo_2021.png    the same split on 1 April 2021
   country_groups.csv          fill and distance on 1 April 2022, group, by country
+  fig_q3a_bunching_weighted.png  2019-21 vs 2022-24, one bubble per country-year sized by
+                              capacity (the talk version of panel 2)
+  bunching_weighted_summary.csv  capacity share below target and TWh short, per period
   bunching.csv                fill and target on each target date, by country-year
   did_monthly.csv             the series behind fig_q3a_did.png
 """
@@ -123,9 +126,10 @@ def bunching(c):
             f = w.groupby("country").fill.max()
         else:
             f = c[c.date == pd.Timestamp(f"{y}-{when}")].set_index("country").fill
+        wgv = c[c.date == pd.Timestamp(f"{y}-11-01")].set_index("country").workingGasVolume
         for k, v in f.items():
-            rows.append({"year": y, "country": k, "fill": v, "target": tgt,
-                         "dist": v - tgt, "mandate": y >= 2022})
+            rows.append({"year": y, "country": k, "fill": v, "target": tgt, "dist": v - tgt,
+                         "wgv_twh": wgv.get(k, np.nan), "mandate": y >= 2022})
     b = pd.DataFrame(rows)
     b.round(2).to_csv(os.path.join(OUT, "bunching.csv"), index=False)
     return b
@@ -150,6 +154,63 @@ def bunching_plot(ax, b):
     ax.legend(loc="upper left", fontsize=9)
 
 
+def size_summary(x):
+    """Share of capacity below target and the TWh missing to reach it, per period."""
+    below = x[x.dist < 0]
+    return {"cap_share_below": below.wgv_twh.sum() / x.wgv_twh.sum(),
+            "missing_twh_per_year": (-below.dist / 100 * below.wgv_twh).sum() / x.year.nunique(),
+            "n_below": len(below), "n": len(x)}
+
+
+def bubble_plot(b):
+    """Equal windows, 2019-2021 vs 2022-2024. One bubble per country-year, area = capacity."""
+    x = b[b.year.between(2019, 2024)].copy()
+    periods = [("2019–2021\nbefore the mandate\n(vs 90% on 1 Nov)", x[x.year <= 2021], GRAY),
+               ("2022–2024\nwith the mandate\n(vs that year's target)", x[x.year >= 2022], ORANGE)]
+    label = ["DE", "IT", "AT", "LV"]
+    fig, ax = plt.subplots(figsize=(12, 6.2))
+    scale = 1600 / x.wgv_twh.max()
+    rows = []
+    for i, (lab, p, col) in enumerate(periods):
+        base = 1 - i
+        for j, y in enumerate(sorted(p.year.unique())):
+            q = p[p.year == y]
+            yy = base + (j - 1) * 0.22
+            ax.scatter(q.dist.clip(-45, 25), np.full(len(q), yy), s=q.wgv_twh * scale, color=col,
+                       alpha=0.45, edgecolor="white", lw=0.8, zorder=3)
+            ax.text(-49, yy, str(y), fontsize=9, color=INK2, va="center", ha="right")
+            lab_q = q[q.country.isin(label)].sort_values("dist")
+            for k, r in enumerate(lab_q.itertuples()):
+                ax.text(min(max(r.dist, -45), 25), yy + (0.085 if k % 2 == 0 else -0.085), r.country,
+                        fontsize=8, color=INK, ha="center", va="center", zorder=4)
+        sm = size_summary(p)
+        rows.append({"period": lab.split(chr(10))[0], **sm})
+        ax.text(27, base, f"{sm['cap_share_below']:.0%} of capacity below target\n"
+                f"{sm['n_below']} of {sm['n']} country-years\n"
+                f"≈{sm['missing_twh_per_year']:.0f} TWh/yr short of target",
+                fontsize=10, color=col if i else INK2, va="center")
+        ax.text(-62, base, lab, fontsize=10, color=INK, va="center", ha="right", fontweight="bold")
+    ax.axvline(0, color=INK, lw=1.2)
+    ax.text(0.6, 1.45, "target", fontsize=9, color=INK)
+    ax.set_ylim(-0.45, 1.5)
+    ax.set_xlim(-48, 26)
+    ax.set_yticks([])
+    ax.grid(axis="y", visible=False)
+    ax.spines["left"].set_visible(False)
+    ax.set_xlabel("fill on 1 November minus target, pp (clipped at −45 and +25)")
+    titles(ax, "With the mandate, the large storage countries no longer start winter short",
+           "Bubble area = the country's working gas volume (TWh). Labelled: DE, IT, AT, LV. "
+           "Source: GIE AGSI+; NL excluded (data gap).")
+    fig.tight_layout()
+    fig.savefig(os.path.join(OUT, "fig_q3a_bunching_weighted.png"), bbox_inches="tight")
+    plt.close(fig)
+    t = pd.DataFrame(rows)
+    t.round(3).to_csv(os.path.join(OUT, "bunching_weighted_summary.csv"), index=False)
+    print(t.round(3).to_string(index=False))
+    print(x[x.dist < 0].sort_values("wgv_twh", ascending=False)
+          [["year", "country", "fill", "target", "dist", "wgv_twh"]].round(1).to_string(index=False))
+
+
 def main():
     c = load()
     g = groups(c, "2022-04-01", TARGET_2022)
@@ -169,6 +230,7 @@ def main():
     plt.close(fig)
 
     b = bunching(c)
+    bubble_plot(b)
     fig, ax = plt.subplots(figsize=(9, 5))
     bunching_plot(ax, b)
     titles(ax, "Since 2022, few countries miss the target, and most overshoot it",
