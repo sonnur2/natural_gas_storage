@@ -1,0 +1,8 @@
+OLS slope 0.29 (se 0.03): of a 10-point spring shortfall, 2.9 points are still missing on 1 Nov.
+Without 2021: 0.22 (se 0.05).
+IV (winter HDD): 0.49 (se 0.18); without 2021: 0.42.
+First stage: -0.088 pp per HDD (se 0.020).
+Capacity-weighted threshold (countries whose usual fill is above 90%): 17.9 pp below normal in spring.
+Countries whose usual 1 Nov fill is already below 90%: AT, HU, ES, RO, LV, BG, PT, SE.
+Country-years 2017-2021 where the target would have bound: 45 of 85 (33% of capacity-years); share after a colder-than-usual winter: 53%.
+Binding country-years: AT 2017, AT 2018, AT 2021, BE 2017, BE 2018, BG 2017, BG 2018, BG 2019, BG 2020, BG 2021, DE 2018, DK 2018, ES 2017, ES 2018, ES 2019, ES 2020, ES 2021, FR 2018, HU 2017, HU 2018, HU 2019, HU 2020, HU 2021, LV 2017, LV 2018, LV 2019, LV 2020, LV 2021, PT 2017, PT 2018, PT 2019, PT 2020, PT 2021, RO 2017, RO 2018, RO 2019, RO 2020, RO 2021, SE 2017, SE 2018, SE 2019, SE 2020, SE 2021, SK 2017, SK 2018
