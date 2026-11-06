@@ -24,6 +24,10 @@ Usage (from the repo root):
   python code/entsoe_download.py                       # everything
   python code/entsoe_download.py --datasets generation --countries DE --start 2025-01 --end 2025-01
   python code/entsoe_download.py --parse-only          # rebuild CSVs from saved XML
+
+In Jupyter: paste the file into a cell (or `%run code/entsoe_download.py`), then call
+  run(["generation"], ["DE"], "2025-01", "2025-01", token="YOUR_TOKEN")
+Files are written under ROOT; check print(ROOT) and set ROOT = "/path/to/repo" if needed.
 """
 import argparse
 import os
@@ -35,7 +39,12 @@ from datetime import datetime, timedelta, timezone
 import pandas as pd
 import requests
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+try:  # run as a script: repo root is one level above code/
+    ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+except NameError:  # pasted into Jupyter: use the notebook's folder, or set ROOT by hand
+    ROOT = os.getcwd()
+    if os.path.basename(ROOT) == "code":
+        ROOT = os.path.dirname(ROOT)
 RAW = os.path.join(ROOT, "data", "raw_data", "entsoe")
 OUT = os.path.join(ROOT, "data", "entsoe")
 URL = "https://web-api.tp.entsoe.eu/api"
@@ -266,8 +275,8 @@ def parse_all(datasets):
 
 
 # ---------------------------------------------------------------- main
-def read_token():
-    tok = os.environ.get("ENTSOE_TOKEN")
+def read_token(token=None):
+    tok = token or os.environ.get("ENTSOE_TOKEN")
     path = os.path.join(ROOT, ".entsoe_token")
     if not tok and os.path.exists(path):
         tok = open(path).read().strip()
@@ -276,7 +285,15 @@ def read_token():
     return tok
 
 
-if __name__ == "__main__":
+def run(datasets=ALL_DATASETS, countries=list(COUNTRY), start="2015-01", end=None, token=None, parse_only=False):
+    """Notebook entry point, e.g. run(["generation"], ["DE"], "2025-01", "2025-01", token="...")."""
+    end = end or datetime.now(timezone.utc).strftime("%Y-%m")
+    if not parse_only:
+        download(datasets, countries, start, end, read_token(token))
+    parse_all(datasets)
+
+
+if __name__ == "__main__" and "ipykernel" not in sys.modules:
     ap = argparse.ArgumentParser()
     ap.add_argument("--datasets", nargs="+", default=ALL_DATASETS, choices=ALL_DATASETS)
     ap.add_argument("--countries", nargs="+", default=list(COUNTRY), choices=list(COUNTRY))
