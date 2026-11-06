@@ -276,6 +276,8 @@ def parse_all(datasets):
 
 # ---------------------------------------------------------------- main
 def read_token(token=None):
+    if token in (None, "", "YOUR_TOKEN"):  # fall back to an ENTSOE_TOKEN variable set in the notebook
+        token = globals().get("ENTSOE_TOKEN")
     tok = token or os.environ.get("ENTSOE_TOKEN")
     path = os.path.join(ROOT, ".entsoe_token")
     if not tok and os.path.exists(path):
