@@ -1,7 +1,7 @@
 country,gen_gas_gwh,gen_gas_peak_mw,gen_gas_evening_gwh,load_gwh,gen_nuclear_gwh,gen_hydro_gwh,gen_wind_gwh,gen_solar_gwh,net_export_listed_borders_gwh,t_max_c,summer_days,heatwave_days,heatwaves,lo,hi
 DE,1,1,1,0.636,1,1,1,1,0.637,1,2013,92,21,8,32
-IT,0.999,0.999,0.999,1,0,1,1,1,0.934,1,2013,443,64,14,34
+IT,0.999,0.999,0.999,1,1,1,1,1,0.934,1,2013,443,64,14,34
 NL,1,1,1,1,1,1,1,1,0.636,1,2013,86,19,10,30
 FR,1,1,1,1,1,1,1,1,1,1,2013,208,42,10,36
-AT,1,1,1,1,0,1,1,1,0.637,1,2013,154,36,8,32
+AT,1,1,1,1,1,1,1,1,0.637,1,2013,154,36,8,32
 ES,1,1,0.999,1,1,1,1,1,1,1,2013,236,38,16,40

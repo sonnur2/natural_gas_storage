@@ -1,0 +1,32 @@
+
+\begingroup
+\centering
+\begin{tabular}{lcccccc}
+   \tabularnewline \midrule \midrule
+   Dependent Variable: & \multicolumn{6}{c}{Gas generation (GWh/d)}\\
+                          & DE            & IT            & NL      & FR      & AT      & ES \\   
+   Model:                 & (1)           & (2)           & (3)     & (4)     & (5)     & (6)\\  
+   \midrule
+   \emph{Variables}\\
+   hw\_phase $=$ day 1-2  & 5.736         & -8.752        & -0.5318 & -0.5664 & -0.1318 & -6.433\\   
+                          & (5.074)       & (6.624)       & (5.072) & (2.903) & (1.087) & (6.294)\\   
+   hw\_phase $=$ day 3-5  & 13.68$^{***}$ & 16.96$^{**}$  & 3.515   & 2.682   & 0.7490  & 7.676\\   
+                          & (4.306)       & (6.623)       & (5.348) & (3.426) & (1.185) & (6.379)\\   
+   hw\_phase $=$ day 6+   & -23.80$^{**}$ & 39.96$^{***}$ & 8.612   & 2.263   & -1.389  & 21.52$^{**}$\\   
+                          & (9.653)       & (8.531)       & (8.016) & (4.177) & (1.594) & (8.865)\\   
+   \midrule
+   \emph{Fixed-effects}\\
+   year-month             & Yes           & Yes           & Yes     & Yes     & Yes     & Yes\\  
+   dow                    & Yes           & Yes           & Yes     & Yes     & Yes     & Yes\\  
+   \midrule
+   \emph{Fit statistics}\\
+   Observations           & 2,013         & 2,011         & 2,013   & 2,013   & 2,013   & 2,012\\  
+   R$^2$                  & 0.76646       & 0.81511       & 0.62694 & 0.73319 & 0.64806 & 0.77760\\  
+   Within R$^2$           & 0.03608       & 0.17514       & 0.02276 & 0.05495 & 0.04001 & 0.15621\\  
+   \midrule \midrule
+   \multicolumn{7}{l}{\emph{Clustered (week) standard-errors in parentheses}}\\
+   \multicolumn{7}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+\end{tabular}
+\par\endgroup
+
+
