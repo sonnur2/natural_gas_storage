@@ -80,7 +80,9 @@ if (!is.null(gen)) {
   gen[, mwh := value * step_h]
 
   cv <- coverage(gen, "generation"); add_summary(cv)
-  p <- ggplot(cv, aes(month_date, variable, fill = share)) + geom_tile() +
+  # each tile spans its whole month (default tiles are 28 days wide and leave white gaps)
+  cv[, days := hours_in_month(ym[1]) / 24, by = ym]
+  p <- ggplot(cv, aes(as.Date(month_date) + days / 2, variable, fill = share)) + geom_tile(aes(width = days)) +
     facet_wrap(~area, ncol = 2, scales = "free_y") +
     scale_fill_gradient(low = "#fdecea", high = "#1e8449", limits = c(0, 1)) +
     labs(title = "Generation: share of hours with data, by fuel and month", x = NULL, y = NULL, fill = "coverage") +
