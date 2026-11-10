@@ -23,7 +23,7 @@
 #   prices: DE and AT use the joint DE-AT-LU zone before 1 Oct 2018; IT uses the North zone
 #   if a series comes at two resolutions on the same day (e.g. hourly, then 15-min), the finer one is kept
 #
-# Packages: install.packages(c("data.table", "R.utils"))   # R.utils lets fread/fwrite handle .gz
+# install.packages(c("data.table", "R.utils"))   # R.utils lets fread/fwrite handle .gz
 # Run: Source in RStudio, or Rscript code/build_country_day_panel.R from the repo folder.
 # Memory: the generation file is the big one; reading it needs a few GB of RAM.
 

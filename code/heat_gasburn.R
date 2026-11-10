@@ -22,7 +22,7 @@
 #
 # Output: output/heat_gasburn/  figures fig01-fig08 (png), tables (tex) and coefficient csv.
 #
-# Packages: install.packages(c("data.table", "ggplot2", "fixest"))
+install.packages(c("data.table", "ggplot2", "fixest"))
 # etable keep = "%..." matches the original coefficient names (before the dict renaming).
 # Run: Source in RStudio, or Rscript code/heat_gasburn.R from the repo folder.
 
