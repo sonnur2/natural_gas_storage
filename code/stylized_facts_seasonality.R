@@ -257,6 +257,40 @@ if (file.exists(PANEL)) {
               labs(x = "heatwave days in the year", y = "gas generation, Jul-Aug / May-Jun", colour = NULL,
                    title = "D3. Hot summers and the July-August gas bump, country-years 2015-2025"),
             "figD3_bump_vs_heatwaves", w = 9, h = 6)
+
+  # figD4: gas-fired generation in the injection season (Apr-Sep of year t) and in July-August of year t,
+  # each relative to the withdrawal season just before it (Oct t-1 to Mar t). Mean daily GWh, so the
+  # different season lengths do not matter. A season needs 90% of its days reported.
+  p[, season_year := fifelse(month >= 10, year + 1L, year)]   # Oct-Dec belong to the next year's withdrawal season
+  p[, season := fifelse(month %in% SUMMER, "inj", "wd")]
+  sea <- p[, .(wd = mean(gen_gas_gwh[season == "wd"], na.rm = TRUE), wd_ok = mean(!is.na(gen_gas_gwh[season == "wd"])),
+               wd_n = sum(season == "wd"),
+               inj = mean(gen_gas_gwh[season == "inj"], na.rm = TRUE), inj_ok = mean(!is.na(gen_gas_gwh[season == "inj"])),
+               inj_n = sum(season == "inj"),
+               ja = mean(gen_gas_gwh[month %in% 7:8], na.rm = TRUE), ja_ok = mean(!is.na(gen_gas_gwh[month %in% 7:8]))),
+           by = .(country, season_year)]
+  sea <- sea[wd_n >= 180 & inj_n >= 180 & wd_ok >= 0.9 & inj_ok >= 0.9 & ja_ok >= 0.9]   # full seasons only (drops 2015, 2026)
+  sea[, `:=`(inj_vs_wd = inj / wd, ja_vs_wd = ja / wd)]
+  fwrite(sea[, .(country, year = season_year, gas_gwh_day_withdrawal = round(wd, 1), gas_gwh_day_injection = round(inj, 1),
+                 gas_gwh_day_jul_aug = round(ja, 1), injection_vs_withdrawal = round(inj_vs_wd, 3),
+                 jul_aug_vs_withdrawal = round(ja_vs_wd, 3))],
+         file.path(OUT, "D_gas_generation_season_ratios.csv"))
+  add_trend(sea[, .(country, year = season_year, value = inj_vs_wd)], "gasgen_injection_vs_withdrawal", "ratio", "2016-2025")
+  add_trend(sea[, .(country, year = season_year, value = ja_vs_wd)], "gasgen_julaug_vs_withdrawal", "ratio", "2016-2025")
+  d4 <- melt(sea[, .(country, year = season_year,
+                     `injection season (Apr-Sep) / withdrawal season (Oct-Mar)` = inj_vs_wd,
+                     `July-August / withdrawal season (Oct-Mar)` = ja_vs_wd)],
+             id.vars = c("country", "year"))
+  save_plot(ggplot(d4, aes(year, value, colour = variable)) +
+              geom_hline(yintercept = 1, colour = "grey60") +
+              geom_line() + geom_point(size = 1.3) +
+              scale_colour_manual(values = c("#7f8c8d", "#d35400")) +
+              scale_x_continuous(breaks = seq(2016, 2025, 3)) +
+              facet_wrap(~country, scales = "free_y") +
+              labs(x = "year of the injection season", y = "ratio of mean daily gas-fired generation", colour = NULL,
+                   title = "D4. Gas-fired generation in summer relative to the preceding winter, 2016-2025",
+                   subtitle = "Mean daily GWh in April-September (grey) and in July-August (orange) of year t, divided by October t-1 to March t. Above 1 = more gas burnt for power than in the withdrawal season"),
+            "figD4_gasgen_season_ratios", h = 6.5)
 } else message("D. skipped: ", PANEL, " not found (run build_country_day_panel.R)")
 
 # ================================================================ trend table

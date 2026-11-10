@@ -71,3 +71,15 @@ peak_summer_vs_winter,ratio,2015-2025,NL,-0.052,0.023
 peak_summer_vs_winter,ratio,2015-2025,FR,0.022,0.02
 peak_summer_vs_winter,ratio,2015-2025,AT,-0.024,0.027
 peak_summer_vs_winter,ratio,2015-2025,ES,-0.046,0.031
+gasgen_injection_vs_withdrawal,ratio,2016-2025,DE,-0.195,0.19
+gasgen_injection_vs_withdrawal,ratio,2016-2025,IT,-0.095,0.11
+gasgen_injection_vs_withdrawal,ratio,2016-2025,NL,-0.047,0.136
+gasgen_injection_vs_withdrawal,ratio,2016-2025,FR,-0.218,0.158
+gasgen_injection_vs_withdrawal,ratio,2016-2025,AT,-0.177,0.089
+gasgen_injection_vs_withdrawal,ratio,2016-2025,ES,-0.052,0.205
+gasgen_julaug_vs_withdrawal,ratio,2016-2025,DE,-0.289,0.256
+gasgen_julaug_vs_withdrawal,ratio,2016-2025,IT,-0.035,0.163
+gasgen_julaug_vs_withdrawal,ratio,2016-2025,NL,0.012,0.245
+gasgen_julaug_vs_withdrawal,ratio,2016-2025,FR,-0.172,0.161
+gasgen_julaug_vs_withdrawal,ratio,2016-2025,AT,-0.239,0.163
+gasgen_julaug_vs_withdrawal,ratio,2016-2025,ES,-0.063,0.279
