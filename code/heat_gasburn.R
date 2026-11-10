@@ -64,6 +64,15 @@ setorder(p, country, date)
 
 # Germany closed its last reactors on 15 April 2023; ENTSO-E then stops reporting the series
 p[country == "DE" & date >= as.IDate("2023-04-16") & is.na(gen_nuclear_gwh), gen_nuclear_gwh := 0]
+# a fuel never reported in a country (IT and AT have no nuclear, NL almost no hydro) is zero there,
+# so that those countries stay in the S3/S4 regressions instead of being dropped as missing
+for (v in c("gen_nuclear_gwh", "gen_hydro_gwh", "gen_wind_gwh", "gen_solar_gwh")) {
+  none <- p[, all(is.na(get(v))), by = country][V1 == TRUE, country]
+  if (length(none)) {
+    message("  ", v, " never reported in ", paste(none, collapse = ", "), ": set to 0")
+    p[country %in% none, (v) := 0]
+  }
+}
 
 p[, `:=`(summer = month >= 4 & month <= 9,
          week = format(date, "%G-%V"),                       # ISO week: cluster variable
@@ -168,12 +177,20 @@ tidy <- function(m, ...) {   # coefficients as a data.table, plus whatever label
   ct <- coeftable(m)
   data.table(term = rownames(ct), est = ct[, 1], se = ct[, 2], p = ct[, 4], nobs = nobs(m), ...)
 }
-fit <- function(y, rhs, d, fe = FE) {   # NULL if the outcome is missing for this country
-  ok <- d[, sum(!is.na(get(y)))]
-  if (ok < 200) return(NULL)
+fit <- function(y, rhs, d, fe = FE) {   # NULL if the outcome is missing or constant for this country
+  yv <- d[[y]]
+  if (sum(!is.na(yv)) < 200) return(NULL)
+  if (length(unique(na.omit(yv))) < 10) {   # e.g. a fuel that is always zero in this country
+    message("  skipped ", y, " for ", as.character(d$country[1]), ": (almost) constant")
+    return(NULL)
+  }
   vars <- regmatches(rhs, gregexpr("[a-z_]+_gwh", rhs))[[1]]
   if (length(vars) && any(d[, sapply(.SD, function(x) mean(!is.na(x))), .SDcols = vars] < 0.5)) return(NULL)
-  feols(as.formula(paste(y, "~", rhs, "|", fe)), data = d, cluster = ~week)
+  tryCatch(feols(as.formula(paste(y, "~", rhs, "|", fe)), data = d, cluster = ~week),
+           error = function(e) {
+             message("  skipped ", y, " for ", as.character(d$country[1]), ": ", conditionMessage(e))
+             NULL
+           })
 }
 bins <- paste0("i(tmax_b, ref = ", REF_BIN, ")")
 
