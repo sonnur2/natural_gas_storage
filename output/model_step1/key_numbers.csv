@@ -1,0 +1,32 @@
+item,value
+y* (TWh),850
+y*/K,0.7727
+mandated fill (TWh),990
+gap G (TWh),140
+s1,0.0145
+s2,0.0287
+kappa,0.0036
+sigma,0.0426
+Lambda,0.0463
+omega1,0.1079
+omega2,0.2459
+P1 at y*,37.3444
+P2 at y*,42.7911
+P1 at mandate,39.3776
+P2 at mandate,38.7747
+spread beta*P2-P1 at y*,4.5909
+spread at mandate,-1.3784
+shadow price nu = Lambda*G (EUR/MWh),6.4784
+storer profit at y* (EURm),1313.6364
+storer profit at mandate (EURm),-4631.568
+DWL (EURm),453.4846
+summer consumers (EURm),-2627.7991
+winter consumers (EURm),7939.8831
+summer importers (EURm),4498.3385
+winter importers (EURm),-4318.7028
+storers (EURm),-5945.2044
+per-unit subsidy sigma_s needed (EUR/MWh),6.4784
+subsidy bill (EURm),6413.568
+state fill z (TWh),990
+private fill under state filling (TWh),0
+state loss (EURm),4631.568
